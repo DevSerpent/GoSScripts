@@ -3,7 +3,6 @@
 if myHero.charName ~= "Xerath" then return end
 
 require "DamageLib"
-require "PremiumPrediction"
 
 local Version = 2.11
 
