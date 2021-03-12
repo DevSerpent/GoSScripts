@@ -490,7 +490,7 @@ local 	LazyMenu = MenuElement({id = "LazyXerath", name = "Jiingz "..myHero.charN
 		LazyMenu:MenuElement({id = "Harass", name = "Harass", type = MENU})
 		LazyMenu:MenuElement({id = "Clear", name = "Lane+JungleClear", type = MENU})
 		LazyMenu:MenuElement({id = "Killsteal", name = "Killsteal", type = MENU})
-		LazyMenu:MenuElement({id = "Debug", name = "Debug", type = MENU})
+		--LazyMenu:MenuElement({id = "Debug", name = "Debug", type = MENU})
 		LazyMenu:MenuElement({id = "Misc", name = "Misc", type = MENU})
 		LazyMenu:MenuElement({id = "Drawings", name = "Drawings", type = MENU})
 		LazyMenu:MenuElement({id = "Key", name = "Key Settings", type = MENU})
@@ -1236,10 +1236,10 @@ function LazyXerath:Menu()
 	LazyMenu.Combo.R:MenuElement({id = "useBlue", name = "Use Farsight Alteration", value = true})
 	LazyMenu.Combo.R:MenuElement({id = "useRkey", name = "On key press (close to mouse)", key = string.byte("T")})
 	
-	LazyMenu.Debug:MenuElement({id = "DrawQ", name = "Draw Q Prediction", value = true})
-	LazyMenu.Debug:MenuElement({id = "DrawW", name = "Draw W Prediction", value = true})
-	LazyMenu.Debug:MenuElement({id = "DrawE", name = "Draw E Prediction", value = true})
-	LazyMenu.Debug:MenuElement({id = "DrawR", name = "Draw R Prediction", value = true})
+	--LazyMenu.Debug:MenuElement({id = "DrawQ", name = "Draw Q Prediction", value = true})
+	--LazyMenu.Debug:MenuElement({id = "DrawW", name = "Draw W Prediction", value = true})
+	--LazyMenu.Debug:MenuElement({id = "DrawE", name = "Draw E Prediction", value = true})
+	--LazyMenu.Debug:MenuElement({id = "DrawR", name = "Draw R Prediction", value = true})
 
 	LazyMenu.Drawings:MenuElement({id = "DrawQRange", name = "Draw Q", value = true})
 	LazyMenu.Drawings:MenuElement({id = "DrawWRange", name = "Draw W", value = true})
@@ -1338,37 +1338,18 @@ if myHero.dead then return end
 		Draw.Circle(myHero.pos, self.E.Range, 5, Draw.Color(255, 255, 0, 0))
 	end
 
-	if LazyMenu.Debug.DrawQ:Value() then
-		local target = GetTarget(1400,"AP")
-		if target then
-			local qPremPred = self.Q:GetPrediction(target)
-			Draw.Circle(qPremPred, 50, 1.5, Draw.Color(255,0,0,230))
+	local killable = {}
+		for i,hero in pairs(GetEnemyHeroes()) do
+			if hero.isEnemy and hero.valid and not hero.dead and hero.isTargetable and (OnVision(hero).state == true or (OnVision(hero).state == false and GetTickCount() - OnVision(hero).tick < 50)) and hero.isTargetable and GetDistance(myHero.pos,hero.pos) < 5000 then
+				local rDMG = getdmg("R", hero, myHero) * (2 + myHero:GetSpellData(_R).level) - LazyMenu.Combo.R.safeR:Value()
+				if hero.health + hero.shieldAP + hero.shieldAD < rDMG then
+					local res = Game.Resolution()
+      				Draw.Text(hero.charName.. " Is killable with ".. (2 + myHero:GetSpellData(_R).level) - LazyMenu.Combo.R.safeR:Value().. " Ult Shots!!", 64, res.x / 2 - 250 - (#hero.charName * 30), res.y / 2 -380, Draw.Color(255, 255, 0, 0))
+					killable[hero.networkID] = hero
+				end
+			end
 		end
-	end
 	
-	if LazyMenu.Debug.DrawW:Value() then
-		local target = GetTarget(1000,"AP")
-		if target then
-			local wPremPred = self.W:GetPrediction(target)
-			Draw.Circle(wPremPred, 200, 1.5, Draw.Color(255,0,0,230))
-		end
-	end
-	
-	if LazyMenu.Debug.DrawE:Value() then
-		local target = GetTarget(1050,"AP")
-		if target then
-			local ePremPred = self.E:GetPrediction(target)
-			Draw.Circle(ePremPred, 35, 1.5, Draw.Color(255,0,0,230))
-		end
-	end
-	
-	if LazyMenu.Debug.DrawR:Value() then
-		local target = GetTarget(5000,"AP")
-		if target then
-			local rPremPred = self.R:GetPrediction(target)
-			Draw.Circle(rPremPred, 200, 1.5, Draw.Color(255,0,0,230))
-		end
-	end
 	
 end
 
