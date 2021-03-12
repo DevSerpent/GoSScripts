@@ -492,6 +492,7 @@ local 	LazyMenu = MenuElement({id = "LazyXerath", name = "Jiingz "..myHero.charN
 		LazyMenu:MenuElement({id = "Killsteal", name = "Killsteal", type = MENU})
 		LazyMenu:MenuElement({id = "Debug", name = "Debug", type = MENU})
 		LazyMenu:MenuElement({id = "Misc", name = "Misc", type = MENU})
+		LazyMenu:MenuElement({id = "Drawings", name = "Drawings", type = MENU})
 		LazyMenu:MenuElement({id = "Key", name = "Key Settings", type = MENU})
 		LazyMenu.Key:MenuElement({id = "Combo", name = "Combo", key = string.byte(" ")})
 		LazyMenu.Key:MenuElement({id = "Harass", name = "Harass | Mixed", key = string.byte("C")})
@@ -1239,7 +1240,11 @@ function LazyXerath:Menu()
 	LazyMenu.Debug:MenuElement({id = "DrawW", name = "Draw W Prediction", value = true})
 	LazyMenu.Debug:MenuElement({id = "DrawE", name = "Draw E Prediction", value = true})
 	LazyMenu.Debug:MenuElement({id = "DrawR", name = "Draw R Prediction", value = true})
-	
+
+	LazyMenu.Drawings:MenuElement({id = "DrawQRange", name = "Draw Q", value = true})
+	LazyMenu.Drawings:MenuElement({id = "DrawWRange", name = "Draw W", value = true})
+	LazyMenu.Drawings:MenuElement({id = "DrawERange", name = "Draw E", value = true})
+
 	LazyMenu.Harass:MenuElement({id = "useQ", name = "Use Q", value = true})
 	LazyMenu.Harass:MenuElement({id = "manaQ", name = " Q | Mana-Manager", value = 40, min = 0, max = 100, step = 1})
 	LazyMenu.Harass:MenuElement({id = "useW", name = "Use W", value = true})
@@ -1321,6 +1326,18 @@ if myHero.dead then return end
 		end
 	end
 	
+	if LazyMenu.Drawings.DrawQRange:Value() then
+		Draw.Circle(myHero.pos, 1400, 5, Draw.Color(255,0,0,230))
+	end
+
+	if LazyMenu.Drawings.DrawWRange:Value() then
+		Draw.Circle(myHero.pos, self.W.Range, 5, Draw.Color(255, 0, 255, 0))
+	end
+
+	if LazyMenu.Drawings.DrawERange:Value() then
+		Draw.Circle(myHero.pos, self.E.Range, 5, Draw.Color(255, 255, 0, 0))
+	end
+
 	if LazyMenu.Debug.DrawQ:Value() then
 		local target = GetTarget(1400,"AP")
 		if target then
@@ -1362,12 +1379,12 @@ function LazyXerath:ComboOrb()
 		if target then
 			if aa.state == 1 and self.chargeQ == false and GetDistance(myHero.pos,target.pos) < 575 and ((Game.CanUseSpell(_Q) ~= 0 and Game.CanUseSpell(_W) ~= 0 and Game.CanUseSpell(_E) ~= 0) or GotBuff(myHero,"xerathascended2onhit") > 0 ) then
 				CastAttack(target,575)
-			elseif aa.state ~= 2 and tick - lastMove > 120 then
+			elseif aa.state ~= 2 and tick - lastMove > 30 then
 				Control.Move()
 				lastMove = tick
 			end
 		else
-			if aa.state ~= 2 and tick - lastMove > 120 then
+			if aa.state ~= 2 and tick - lastMove > 30 then
 				Control.Move()
 				lastMove = tick
 			end
