@@ -1244,6 +1244,7 @@ function LazyXerath:Menu()
 	LazyMenu.Drawings:MenuElement({id = "DrawQRange", name = "Draw Q", value = true})
 	LazyMenu.Drawings:MenuElement({id = "DrawWRange", name = "Draw W", value = true})
 	LazyMenu.Drawings:MenuElement({id = "DrawERange", name = "Draw E", value = true})
+	LazyMenu.Drawings:MenuElement({id = "DrawKillable", name = "Draw Killable with R", value = true})
 
 	LazyMenu.Harass:MenuElement({id = "useQ", name = "Use Q", value = true})
 	LazyMenu.Harass:MenuElement({id = "manaQ", name = " Q | Mana-Manager", value = 40, min = 0, max = 100, step = 1})
@@ -1338,17 +1339,18 @@ if myHero.dead then return end
 		Draw.Circle(myHero.pos, self.E.Range, 5, Draw.Color(255, 255, 0, 0))
 	end
 
-	local killable = {}
+
+	if LazyMenu.Drawings.DrawKillable:Value() then 
 		for i,hero in pairs(GetEnemyHeroes()) do
 			if hero.isEnemy and hero.valid and not hero.dead and hero.isTargetable and (OnVision(hero).state == true or (OnVision(hero).state == false and GetTickCount() - OnVision(hero).tick < 50)) and hero.isTargetable and GetDistance(myHero.pos,hero.pos) < 5000 then
 				local rDMG = getdmg("R", hero, myHero) * (2 + myHero:GetSpellData(_R).level) - LazyMenu.Combo.R.safeR:Value()
 				if hero.health + hero.shieldAP + hero.shieldAD < rDMG then
 					local res = Game.Resolution()
       				Draw.Text(hero.charName.. " Is killable with ".. (2 + myHero:GetSpellData(_R).level) - LazyMenu.Combo.R.safeR:Value().. " Ult Shots!!", 64, res.x / 2 - 250 - (#hero.charName * 30), res.y / 2 -380, Draw.Color(255, 255, 0, 0))
-					killable[hero.networkID] = hero
 				end
 			end
 		end
+	end
 	
 	
 end
