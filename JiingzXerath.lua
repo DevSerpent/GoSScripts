@@ -4,6 +4,7 @@ if myHero.charName ~= "Xerath" then return end
 
 require "DamageLib"
 
+
 local Version = 2.11
 
 
@@ -528,9 +529,6 @@ function GetMode()
         or 
 		_G.SDK.Orbwalker.Modes[_G.SDK.ORBWALKER_MODE_FLEE] and "Flee"
 		or nil
-    
-	elseif _G.PremiumOrbwalker then
-		return _G.PremiumOrbwalker:GetMode()
 	end
 	return nil
 end
@@ -540,8 +538,6 @@ local function SetAttack(bool)
 		EOW:SetAttacks(bool)
 	elseif _G.SDK then                                                        
 		_G.SDK.Orbwalker:SetAttack(bool)
-	elseif _G.PremiumOrbwalker then
-		_G.PremiumOrbwalker:SetAttack(bool)	
 	else
 		GOS.BlockAttack = not bool
 	end
@@ -553,8 +549,6 @@ local function SetMovement(bool)
 		EOW:SetMovements(bool)
 	elseif _G.SDK then
 		_G.SDK.Orbwalker:SetMovement(bool)
-	elseif _G.PremiumOrbwalker then
-		_G.PremiumOrbwalker:SetMovement(bool)	
 	else
 		GOS.BlockMovement = not bool
 	end
@@ -957,8 +951,6 @@ local function GetTarget(Range,t,pos)
 		else
 			return _G.SDK.TargetSelector:GetTarget(Range, _G.SDK.DAMAGE_TYPE_PHYSICAL);
 		end
-	elseif _G.PremiumOrbwalker then
-		return _G.PremiumOrbwalker:GetTarget(Range)
 	end
 end
  
@@ -1147,7 +1139,7 @@ function LazyXerath:Spells()
 		Range = 750,
 		Delay = 0.5,
 		Speed = huge,
-		Width = 250,
+		Width = 290,
 		Collision = false,
 		From = myHero,
 		Type = "SkillShot"
@@ -1157,8 +1149,7 @@ function LazyXerath:Spells()
 		Range = 1000,
 		Delay = 0.5,
 		Speed = huge,
-		Radius = 200,
-		Width = 200,
+		Radius = 210,
 		Collision = false,
 		From = myHero,
 		Type = "AOE"
@@ -1168,7 +1159,7 @@ function LazyXerath:Spells()
 		Range = 1125,
 		Delay = 0.25,
 		Speed = 1400,
-		Width = 80,
+		Width = 120,
 		Collision = true,
 		From = myHero,
 		Type = "Skillshot"
@@ -1176,7 +1167,7 @@ function LazyXerath:Spells()
 	self.R = Spell({
 		Slot = 3,
 		Range = 5000,
-		Delay = 0.627,
+		Delay = 0,
 		Speed = huge,
 		Width = 200,
 		Collision = false,
