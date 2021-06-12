@@ -3,6 +3,7 @@
 if myHero.charName ~= "Xerath" then return end
 
 require "DamageLib"
+require "PremiumPrediction"
 
 local Version = 2.11
 
@@ -1515,18 +1516,18 @@ function LazyXerath:useQ()
 	if Game.CanUseSpell(_Q) == 0 and castSpell.state == 0 then
 		local target = GetTarget(1500,"AP")
 		if target then
-			local QspellData = {speed = self.Q.Speed,	Range = self.Q.Range, 	delay = self.Q.Delay + Game.Latency() / 1000, 	radius = self.Q.Width, 	collision = {nil}, 		type = "linear"}
-			local qPred = self.Q:GetPrediction(target)
-			QspellData = {speed = self.Q.speed,	Range = self.Q.Range, 	delay = 1 + Game.Latency() / 1000, 	radius = self.Q.width, 	collision = {nil}, 		type = "linear"}
-			local qPred2 = self.Q:GetPrediction(target)
-			if qPred and qPred2 then
-				if GetDistance(myHero.pos,qPred2) < 1500 then
+			local QspellData = {speed = self.Q.Speed,	range = self.Q.Range, 	delay = self.Q.Delay + Game.Latency() / 1000, 	radius = self.Q.Width, 	collision = {nil}, 		type = "linear"}
+			local qPred = _G.PremiumPrediction:GetPrediction(myHero, target, QspellData)
+			QspellData = {speed = huge,	range = self.Q.Range, 	delay = 1 + Game.Latency() / 1000, 	radius = 250, 	collision = {nil}, 		type = "linear"}
+			local qPred2 = _G.PremiumPrediction:GetPrediction(myHero, target, QspellData)
+			if qPred.CastPos and qPred2.CastPos then
+				if GetDistance(myHero.pos,qPred.CastPos) < 1500 then
 					self:startQ(target)
 				end
 				if self.chargeQ == true then
-					self:useQclose(target,qPred)
+					self:useQclose(target,qPred2.CastPos)
 					self:useQCC(target)
-					self:useQonTarget(target,qPred)
+					self:useQonTarget(target,qPred2.CastPos)
 				end
 			end
 		end
@@ -1538,12 +1539,13 @@ function LazyXerath:useW()
 		local target = GetTarget(self.W.Range,"AP")
 		if self.lastTarget == nil then self.lastTarget = target end
 		if target and (target == self.lastTarget or (GetDistance(target.pos,self.lastTarget.pos) > 400 and GetTickCount() - self.lastTarget_tick > LazyMenu.TargetSwitchDelay:Value())) then
-			local wPred = self.W:GetPrediction(target)
-			if wPred then
+			local WSpellData = {speed = huge,	range = 1000, 	delay = 0.5, 	radius = 200, 	collision = {nil}, 		type = "circular"}
+			local wPred = _G.PremiumPrediction:GetPrediction(myHero, target, WSpellData)
+			if wPred.CastPos then
 				self:useWdash(target)
 				self:useWCC(target)
-				self:useWkill(target,wPred)
-				self:useWhighHit(target,wPred)
+				self:useWkill(target,wPred.CastPos)
+				self:useWhighHit(target,wPred.CastPos)
 			end
 		end
 	end
@@ -1555,10 +1557,11 @@ function LazyXerath:useE()
 		local target = GetTarget(self.E.Range,"AP")
 		if self.lastTarget == nil then self.lastTarget = target end
 		if target and (target == self.lastTarget or (GetDistance(target.pos,self.lastTarget.pos) > 400 and GetTickCount() - self.lastTarget_tick > LazyMenu.TargetSwitchDelay:Value())) then
-			local ePred = self.E:GetPrediction(target)
-			if ePred and target:GetCollision(self.E.width,self.E.speed,self.E.delay) == 0 then
+			local ESpellData = {speed = 1400,	range = 1125, 	delay = 0.25, 	radius = 80, 	collision = {"minion"}, 		type = "linear"}
+			local ePred = _G.PremiumPrediction:GetPrediction(myHero, target, ESpellData)
+			if ePred.CastPos then
 				self:useEdash(target)
-				self:useEbrainAFK(target,ePred)
+				self:useEbrainAFK(target,ePred.CastPos)
 			end
 		end
 	end
@@ -1576,12 +1579,13 @@ function LazyXerath:useR()
 			if target == self.R_target then
 				if self.chargeR == true and GetTickCount() - self.lastRtick >= 800 + LazyMenu.Combo.R.castDelay:Value() then
 					if target and not IsImmune(target) and (Game.Timer() - OnWaypoint(target).time > 0.05 and (Game.Timer() - OnWaypoint(target).time < 0.20 or Game.Timer() - OnWaypoint(target).time > 1.25) or IsImmobileTarget(target) == true or (self.firstRCast == true and OnVision(target).state == false) ) then
-						local rPred = self.R:GetPrediction(target)
+					    local RSpellData = {speed = huge,	range = 5000, 	delay = 0.627, 	radius = 80, 	collision = {}, 		type = "circular"}
+						local rPred = _G.PremiumPrediction:GetPrediction(myHero, target, RSpellData)
 						if target.pos2D.onScreen then
-							CastSpell(HK_R,rPred,5000,100)
+							CastSpell(HK_R,rPred.CastPos,5000,100)
 							self.R_target = target
 						else
-							CastSpellMM(HK_R,rPred,5000,100)
+							CastSpellMM(HK_R,rPred.CastPos,5000,100)
 							self.R_target = target
 						end
 					end
@@ -1787,13 +1791,14 @@ function LazyXerath:useRonKey()
 			local target = GetTarget(500,"AP",mousePos)
 			if not target then target = GetTarget(5000,"AP") end
 			if target and not IsImmune(target) then
-				local rPred = self.R:GetPrediction(target)
+			    local RSpellData = {speed = huge,	range = 5000, 	delay = 0.627, 	radius = 80, 	collision = {}, 		type = "circular"}
+				local rPred = _G.PremiumPrediction:GetPrediction(myHero, target, RSpellData)
 				if target.pos2D.onScreen then
-					CastSpell(HK_R,rPred,5000,100)
+					CastSpell(HK_R,rPred.CastPos,5000,100)
 					self.R_target = target
 					self.R_target_tick = GetTickCount()
 				else
-					CastSpellMM(HK_R,rPred,5000,100)
+					CastSpellMM(HK_R,rPred.CastPos,5000,100)
 					self.R_target = target
 					self.R_target_tick = GetTickCount()
 				end
@@ -1859,7 +1864,6 @@ end
 end
 
 function OnLoad() LazyXerath() end
-
 
 
 
